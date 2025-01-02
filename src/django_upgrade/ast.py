@@ -13,6 +13,32 @@ if TYPE_CHECKING:
 
 
 def ast_parse(contents_text: str) -> ast.Module:
+    """
+    Parses the given Python source code into an abstract syntax tree (AST).
+
+    This function takes a string containing Python source code and parses it into
+    an AST, which is a tree representation of the abstract syntactic structure of
+    the source code. The AST can be used for various code analysis and transformation
+    tasks.
+
+    Args:
+        contents_text (str): The Python source code to parse.
+
+    Returns:
+        ast.Module: The root node of the parsed abstract syntax tree.
+
+    Notes:
+        - This function intentionally ignores warnings during parsing, as there is
+          nothing that can be done about them in this context.
+        - The source code is encoded to bytes before parsing to handle any encoding
+          issues.
+
+    Example:
+        >>> source_code = "print('Hello, world!')"
+        >>> tree = ast_parse(source_code)
+        >>> print(ast.dump(tree))
+        Module(body=[Expr(value=Call(func=Name(id='print', ctx=Load()), args=[Constant(value='Hello, world!')], keywords=[]))], type_ignores=[])
+    """
     # intentionally ignore warnings, we can't do anything about them
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")

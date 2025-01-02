@@ -22,6 +22,31 @@ from django_upgrade.tokens import DEDENT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """
+    Main entry point for the django-upgrade command-line tool.
+
+    This function parses command-line arguments, initializes settings, and processes
+    the specified files to apply necessary Django upgrade fixers.
+
+    Args:
+        argv (Sequence[str] | None): A list of command-line arguments. If None, defaults to sys.argv.
+
+    Returns:
+        int: A return code indicating the result of the operation. Zero if no files were changed
+             or if --exit-zero-even-if-changed is set, non-zero otherwise.
+
+    Command-line Arguments:
+        filenames (list of str): A list of filenames to process.
+        --target-version (str): The target Django version for the upgrade. Defaults to "2.2".
+        --exit-zero-even-if-changed: Exit with a zero return code even if files have changed.
+        --version: Show the version number and exit.
+        --only (list of str): Run only the selected fixers.
+        --skip (list of str): Skip the selected fixers.
+        --list-fixers: List all available fixer names and exit.
+
+    Example:
+        python -m django_upgrade.main myfile.py --target-version 3.2
+    """
     parser = argparse.ArgumentParser(prog="django-upgrade")
     parser.add_argument("filenames", nargs="+")
     parser.add_argument(
@@ -122,9 +147,28 @@ def fix_file(
     settings: Settings,
     exit_zero_even_if_changed: bool,
 ) -> int:
+    """
+    Processes a file to apply Django upgrade fixers.
+
+    This function reads the contents of the specified file, applies the necessary
+    fixers based on the provided settings, and writes the changes back to the file
+    if any modifications were made.
+
+    Args:
+        filename (str): The name of the file to process. Use "-" to read from stdin.
+        settings (Settings): The settings object containing fixer configurations.
+        exit_zero_even_if_changed (bool): If True, the function will return 0 even if
+                                          the file was changed.
+
+    Returns:
+        int: A return code indicating the result of the operation. Zero if no changes
+             were made or if exit_zero_even_if_changed is True, non-zero otherwise.
+    """
     if filename == "-":
+        # If the filename is "-", read the contents from standard input (stdin) as bytes
         contents_bytes = sys.stdin.buffer.read()
     else:
+        # Otherwise, open the file in binary read mode and read its contents as bytes
         with open(filename, "rb") as fb:
             contents_bytes = fb.read()
 
