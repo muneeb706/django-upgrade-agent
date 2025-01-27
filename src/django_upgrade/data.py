@@ -159,15 +159,27 @@ def visit(
     )
     ast_funcs = get_ast_funcs(state, settings)
 
+    # nodes is a list of tuples where each tuple contains an AST node and its parent nodes.
+    # list is initialized with the root node of the AST and an empty tuple representing no parent nodes.
     nodes: list[tuple[ast.AST, tuple[ast.AST, ...]]] = [(tree, ())]
     ret = defaultdict(list)
     while nodes:
         node, parents = nodes.pop()
 
+        # This loop iterates over the results of applying the transformation function (ast_func)
+        # to the current node and its parent nodes.
+        # The transformation function returns an iterable of tuples, where each tuple contains
+        # an offset (represents a position in the source code) and a token function 
+        # (that performs specific transformation) at that offset.
+
+        # Why transofrmation function is applied to the current node parent nodes?
+        # Ans: It provides the necessary context for more accurate, context aware and robust transformations.
         for ast_func in ast_funcs[type(node)]:
             for offset, token_func in ast_func(state, node, parents):
                 ret[offset].append(token_func)
 
+        # track specific imports from django and unittest modules.
+        # Ensures only top level imports are considered, exlcuding renmaed imports and wildcard imports.
         if (
             isinstance(node, ast.ImportFrom)
             and node.level == 0
@@ -185,6 +197,8 @@ def visit(
                 if name.asname is None and name.name != "*"
             )
 
+        # traversing the child nodes of the current node and adding them to the nodes list,
+        # along with the parent nodes.
         subparents = parents + (node,)
         for name in reversed(node._fields):
             value = getattr(node, name)
@@ -231,6 +245,10 @@ class Fixer:
         ...     # Transformation logic here
         ...     pass
     """
+    # __slots__ declaration in a Python class is used to explicitly 
+    # declare data members (attributes) and to prevent the creation of a 
+    # __dict__ for each instance of the class. This can lead to memory savings and potentially
+    # faster attribute access.
     __slots__ = (
         "name",
         "min_version",
