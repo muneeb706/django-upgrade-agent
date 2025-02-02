@@ -199,17 +199,23 @@ def apply_fixers(contents_text: str, settings: Settings, filename: str) -> str:
         return contents_text
 
     callbacks = visit(ast_obj, settings, filename)
-
+    # if no transformation functions were collected, return the original source
     if not callbacks:
         return contents_text
 
+    # convert source code text to tokens
     try:
         tokens = src_to_tokens(contents_text)
     except tokenize.TokenError:  # pragma: no cover (bpo-2180)
         return contents_text
 
+    # dedent tokents are used in python to indicate the end of a block.
+    # making sure that dedent tokens in the tokenized source code are according to 
+    # the indentation levels set in the source code
     fixup_dedent_tokens(tokens)
 
+    # applying transformation functions to the tokens in reverser order
+    # to ensure that the indices of the token that are not processed yet are not affected.
     for i, token in reversed_enumerate(tokens):
         if not token.src:
             continue
