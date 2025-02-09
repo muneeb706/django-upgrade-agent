@@ -16,3 +16,9 @@ Correct .pre-commit-config.yaml (in Django project, where this package will run)
 id: django-upgrade: This must match the name of the script defined in the pyproject.toml (scripts.django-upgrade).
 
 types: [python]: It's a good practice to specify the types that the hook should operate on (in this case, Python files).
+
+To deploy local updates, commit the updates and update pre-commit in the project (where this pacakge will be run):
+
+pre-commit autoupdate
+
+This will update the rev version in .pre-commit-config.yaml file to latest commit hash
