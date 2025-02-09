@@ -70,6 +70,7 @@ def visit_Call(
 
             html = format_html("Hello, {}!", name)
     """
+    print("here you gooooo !!!")
     if (
         # format_html is imported from django.utils.html
         "format_html" in state.from_imports["django.utils.html"]

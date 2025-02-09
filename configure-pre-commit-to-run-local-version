@@ -1,0 +1,18 @@
+In the pyproject.toml file. The entry file specified by the line
+
+scripts.django-upgrade = "django_upgrade.main:main"
+
+This tells us that django-upgrade is designed to be run as a command-line script, and the entry point is the main function within the django_upgrade.main module.  This is exactly what the pre-commit hook needs.
+
+Correct .pre-commit-config.yaml (in Django project, where this package will run):  
+
+  -   repo: /**/django-upgrade-agent # local path to the package
+      rev: ""
+      hooks:
+      -   id: django-upgrade
+          types: [python]
+          args: [--target-version, "5.1"]
+
+id: django-upgrade: This must match the name of the script defined in the pyproject.toml (scripts.django-upgrade).
+
+types: [python]: It's a good practice to specify the types that the hook should operate on (in this case, Python files).
