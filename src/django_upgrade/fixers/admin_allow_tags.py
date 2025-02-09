@@ -23,13 +23,19 @@ fixer = Fixer(
     min_version=(2, 0),
 )
 
-
+"""
+This fixer is designed to identify and remove assignments to the allow_tags attribute in Django admin classes. 
+The allow_tags attribute was used in older versions of Django to indicate that a method's output should be rendered as HTML. 
+This fixer ensures that such assignments are removed, as they are no longer needed in modern versions of Django.
+"""
 @fixer.register(ast.Assign)
 def visit_Assign(
     state: State,
     node: ast.Assign,
     parents: tuple[ast.AST, ...],
 ) -> Iterable[tuple[Offset, TokenFunc]]:
+    # whether the admin module has been imported from either django.contrib or django.contrib.gis. 
+    # This is used to determine if the current context is related to Django admin classes.
     if (
         (
             "admin" in state.from_imports["django.contrib"]
@@ -41,4 +47,6 @@ def visit_Assign(
         and isinstance(node.value, ast.Constant)
         and node.value.value is True
     ):
+        # returns the start offset of the node and a function that will erase the node.
+        # partial function is used to fix certain number of arguments of a function and generate a new function.
         yield ast_start_offset(node), partial(erase_node, node=node)
