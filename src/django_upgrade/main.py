@@ -22,7 +22,6 @@ from django_upgrade.tokens import DEDENT
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    print("Hello from main")
     """
     Main entry point for the django-upgrade command-line tool.
 
